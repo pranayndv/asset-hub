@@ -11,7 +11,7 @@ interface RouteParams {
 
 export async function PATCH(
   _req: Request,
-  { params }: RouteParams
+    context: { params: Promise<{ recordId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -33,7 +33,7 @@ export async function PATCH(
       );
     }
 
-    const { recordId } =await params;
+    const { recordId } =await context.params;
     if (!recordId) {
       return NextResponse.json(
         { success: false, message: "recordId missing" },
