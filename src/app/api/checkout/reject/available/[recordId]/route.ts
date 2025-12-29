@@ -8,7 +8,7 @@ import { CheckoutStatus, RoleName } from "@prisma/client";
 
 export async function PATCH(
   _req: Request,
-  { params }: { params: { recordId: string } }
+    context: { params: Promise<{ recordId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -30,7 +30,7 @@ export async function PATCH(
       );
     }
 
-    const { recordId } =await params;
+    const { recordId } =await context.params;
 
     const record = await prisma.checkoutRecord.findUnique({
       where: { recordId },
