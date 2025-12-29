@@ -1,18 +1,14 @@
-
 import prisma from "@/lib/db/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
 
-
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
 
-  const {id} = await params;
-
-  console.log("assetsId>>>>",id)
   try {
     const asset = await prisma.asset.findUnique({
       where: { assetId: id },
@@ -39,26 +35,31 @@ export async function GET(
   }
 }
 
-// Update
 export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
+
     const session = await getServerSession(authOptions);
-    if (!session?.user || !["ADMIN", "MANAGER"].includes(session.user.role))
-      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    if (!session?.user || !["ADMIN", "MANAGER"].includes(session.user.role)) {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 403 }
+      );
+    }
 
     const data = await req.json();
 
     const updated = await prisma.asset.update({
-      where: { assetId: params.id },
+      where: { assetId: id },
       data,
     });
 
     return NextResponse.json({ success: true, updated });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
+    console.error("PATCH Asset Error:", err);
     return NextResponse.json(
       { success: false, message: "Server error" },
       { status: 500 }
@@ -66,21 +67,31 @@ export async function PATCH(
   }
 }
 
-// Delete
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
+
     const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== "ADMIN")
-      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 403 }
+      );
+    }
 
-    await prisma.asset.delete({ where: { assetId: params.id } });
+    await prisma.asset.delete({
+      where: { assetId: id },
+    });
 
-    return NextResponse.json({ success: true, message: "Asset deleted" });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    return NextResponse.json({
+      success: true,
+      message: "Asset deleted",
+    });
   } catch (err) {
+    console.error("DELETE Asset Error:", err);
     return NextResponse.json(
       { success: false, message: "Server error" },
       { status: 500 }
