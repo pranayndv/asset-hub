@@ -8,7 +8,7 @@ import { AssetStatus, CheckoutStatus, RoleName } from "@prisma/client";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { recordId: string } }
+    context: { params: Promise<{ recordId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -30,7 +30,7 @@ export async function PATCH(
       );
     }
 
-    const { recordId } =await params;
+    const { recordId } =await conetext.params;
 
     if (!recordId) {
       return NextResponse.json(
