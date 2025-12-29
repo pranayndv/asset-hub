@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  EMPLOYEE
+  MANAGER
+  ADMIN
+}
+
+model User {
+  userId   String   @id @default(cuid())
+  name     String
+  email    String   @unique
+  password String
+  role     RoleName @default(EMPLOYEE)
+
+  profileImage  String?
+  // Manager assignment for employees
+  managerId  String?
+  manager    User? @relation("ManagerEmployees", fields: [managerId], references: [userId])
+  employees  User[] @relation("ManagerEmployees")
+
+  // Forgot password + OTP fields
+  resetOtp      String?
+  resetOtpExp   DateTime?
+
+  // Checkout records by employee
+  records    CheckoutRecord[]
+  
+  actionHistory CheckoutHistory[] @relation("HistoryActionBy")
+  userHistory   CheckoutHistory[] @relation("HistoryUser")
+}
+
+
+model AssetType {
+  typeId      String @id @default(cuid())
+  name        String
+  description String?
+  assets      Asset[]
+}
+
+model Asset {
+  assetId String      @id @default(cuid())
+  label   String      @unique
+  status  AssetStatus @default(AVAILABLE)
+
+  typeId  String
+  type    AssetType   @relation(fields: [typeId], references: [typeId])
+  
+  quantity          Int         @default(1)
+  availableQuantity Int         @default(1)
+
+  imageUrl String?
+  records CheckoutRecord[]
+
+  @@index([typeId])
+}
+
+enum AssetStatus {
+  AVAILABLE
+  CHECKED_OUT
+  IN_MAINTENANCE
+  LOST
+  RETIRED
+  PENDING
+  REJECTED
+}
+
+model CheckoutRecord {
+  recordId     String         @id @default(cuid())
+  checkoutDate DateTime       @default(now())
+  returnDate   DateTime?
+  status       CheckoutStatus @default(PENDING)
+
+  assetId String
+  asset   Asset @relation(fields: [assetId], references: [assetId], onDelete: Cascade)
+
+  quantity Int @default(1) 
+
+  userId String
+  user   User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  history CheckoutHistory[]
+}
+
+enum CheckoutStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RETURN_REQUESTED
+  CLOSED
+}
+
+model CheckoutHistory {
+  historyId  String         @id @default(cuid())
+  actionDate DateTime       @default(now())
+  actionType CheckoutStatus
+
+  recordId String
+  record   CheckoutRecord @relation(fields: [recordId], references: [recordId], onDelete: Cascade)
+
+  userId String
+  user   User @relation("HistoryUser", fields: [userId], references: [userId], onDelete: Cascade)
+
+  quantity   Int? 
+
+  actionById String?
+  actionBy   User? @relation("HistoryActionBy", fields: [actionById], references: [userId], onDelete: SetNull)
+}
