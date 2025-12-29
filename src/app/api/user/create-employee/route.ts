@@ -7,7 +7,8 @@ import { authOptions } from "@/lib/auth/auth";
 import nodemailer from "nodemailer";
 import { RoleName } from "@prisma/client";
 
- 
+ export const runtime = "nodejs";
+
 function generatePassword() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
   let pwd = "";
