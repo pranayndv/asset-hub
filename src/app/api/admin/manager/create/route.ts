@@ -7,6 +7,8 @@ import { RoleName } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 
+export const runtime = "nodejs";
+
 function generatePassword() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
   let pwd = "";
