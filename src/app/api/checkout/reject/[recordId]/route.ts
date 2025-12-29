@@ -30,7 +30,7 @@ export async function PATCH(
       );
     }
 
-    const { recordId } =await conetext.params;
+    const { recordId } =await context.params;
 
     if (!recordId) {
       return NextResponse.json(
