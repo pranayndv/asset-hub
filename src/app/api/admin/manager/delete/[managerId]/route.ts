@@ -1,14 +1,16 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { RoleName } from "@prisma/client";
 import prisma from "@/lib/db/prisma";
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { managerId: string } }
+  _req: NextRequest,
+  context: { params: Promise<{ managerId: string }> }
 ) {
   try {
+    const { managerId } = await context.params;
+
     const session = await getServerSession(authOptions);
 
     if (!session?.user || session.user.role !== RoleName.ADMIN) {
@@ -18,13 +20,11 @@ export async function DELETE(
       );
     }
 
-    const { managerId } =await params;
-
-  
     await prisma.user.updateMany({
       where: { managerId },
       data: { managerId: null },
     });
+
 
     await prisma.user.delete({
       where: { userId: managerId },
