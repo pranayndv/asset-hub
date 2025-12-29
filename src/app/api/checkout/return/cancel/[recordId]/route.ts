@@ -8,7 +8,7 @@ import { CheckoutStatus } from "@prisma/client";
 
 export async function PATCH(
   _req: Request,
-  { params }: { params: { recordId: string } }
+   context: { params: Promise<{ recordId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
