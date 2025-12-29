@@ -1,14 +1,15 @@
 import prisma from "@/lib/db/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
 import { RoleName } from "@prisma/client";
 
-interface RouteParams {
-  params: { assetId: string };
-}
+export async function DELETE(
+  _req: NextRequest,
+  context: { params: Promise<{ assetId: string }> }
+) {
+  const { assetId } = await context.params;
 
-export async function DELETE(_req: Request, { params }: RouteParams) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user || session.user.role !== RoleName.ADMIN) {
@@ -17,8 +18,6 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
       { status: 403 }
     );
   }
-
-  const { assetId } =await params;
 
   if (!assetId) {
     return NextResponse.json(
