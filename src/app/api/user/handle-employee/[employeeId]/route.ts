@@ -8,7 +8,9 @@ interface RouteParams {
   params: { employeeId: string };
 }
 
-export async function PATCH(req: Request, { params }: RouteParams) {
+export async function PATCH(req: Request, 
+              context: { params: Promise<{ employeeId: string }> }
+                           ) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -16,7 +18,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
-    const { employeeId } =await params;
+    const { employeeId } =await context.params;
     const { id: currentUserId, role } = session.user;
     const body = await req.json();
 
@@ -47,7 +49,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 }
 
 
-export async function DELETE(_req: Request, { params }: RouteParams) {
+export async function DELETE(_req: Request, context: { params: Promise<{ employeeId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -55,7 +57,7 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
-    const { employeeId } =await params;
+    const { employeeId } =await context.params;
     const { id: currentUserId, role } = session.user;
 
     const whereCondition =
