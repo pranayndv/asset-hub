@@ -12,13 +12,10 @@ phases:
     commands:
       - echo Building Next.js App...
       - npm run build
-      - echo Exporting Static Files...
-      - npm run export
-      - ls -la out 
-
 artifacts:
   files:
     - '**/*'
   base-directory: out
+
 
 
