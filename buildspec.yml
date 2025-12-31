@@ -2,26 +2,18 @@ version: 0.2
 
 env:
   variables:
-    NODE_ENV: "production"
+    NODE_ENV: production
 
 phases:
   install:
+    runtime-versions:
+      nodejs: 22
     commands:
-      - echo Installing dependency...
-      - npm install -g next
-      - npm install -g typescript
-      - npm install
+      - echo Installing dependencies...
+      - npm ci
+
   build:
     commands:
-      - echo Build started on `date`
-      - echo Compiling the Node.js code
+      - echo Build started on $(date)
+      - echo Building Next.js application
       - npm run build
-artifacts:
-  files:
-    - .next/**/*
-    - locales/**/*
-    - static/**/*
-    - package.json
-    - next.config.js
-    - tsconfig.json
-    - tsconfig.server.json
