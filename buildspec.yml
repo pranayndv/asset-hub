@@ -18,3 +18,7 @@ phases:
       - echo Building Next.js application
       - npm run build
 
+artifacts:
+  files:
+    - '**/*'
+
